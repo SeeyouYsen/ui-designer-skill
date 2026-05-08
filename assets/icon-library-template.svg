@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <!--
+    AI must replace this template with one project-specific icon file.
+    The file path should be /tmp/ui-design-{产品名}/icon/icon-name.svg.
+    Each file must contain exactly one symbol using id="icon-name" and viewBox="0 0 24 24".
+  -->
+  <symbol id="icon-home" viewBox="0 0 24 24">
+    <path d="M4 11.5 12 5l8 6.5" />
+    <path d="M6.5 10.5V20h11v-9.5" />
+    <path d="M10 20v-5h4v5" />
+  </symbol>
+</svg>

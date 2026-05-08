@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{PRODUCT_NAME}} UI Design</title>
+  <style>
+    :root {
+      /* {{DESIGN_TOKENS}} */
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      font-family: var(--font-family-base);
+    }
+
+    .design-doc {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .doc-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--bg-surface);
+      border-bottom: var(--border-subtle);
+      padding: var(--space-page-y) var(--space-page-x);
+    }
+
+    .doc-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+    }
+
+    .doc-title {
+      margin: 0;
+      font-size: var(--font-h2);
+      line-height: var(--line-heading);
+      font-weight: var(--font-weight-bold);
+    }
+
+    .doc-meta {
+      margin-top: var(--space-sm);
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      color: var(--text-secondary);
+      font-size: var(--font-caption);
+    }
+
+    .doc-tabs {
+      display: flex;
+      gap: var(--space-xs);
+      margin-top: var(--space-lg);
+      border-bottom: var(--border-subtle);
+    }
+
+    .doc-tab-button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--text-secondary);
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      font-size: var(--font-body);
+      font-weight: var(--font-weight-medium);
+      cursor: pointer;
+    }
+
+    .doc-tab-button[aria-selected="true"] {
+      background: var(--color-primary-100);
+      color: var(--color-primary-700);
+    }
+
+    .doc-main {
+      flex: 1;
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: var(--space-page-y) var(--space-page-x);
+    }
+
+    .doc-panel {
+      display: none;
+    }
+
+    .doc-panel.is-active {
+      display: block;
+    }
+
+    .section-stack {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xl);
+    }
+
+    .section-title {
+      margin: 0 0 var(--space-md);
+      font-size: var(--font-h3);
+      line-height: var(--line-heading);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(var(--layout-card-min), 1fr));
+      gap: var(--space-md);
+    }
+
+    .spec-card {
+      background: var(--bg-surface);
+      border: var(--border-subtle);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-md);
+    }
+
+    .ui-icon {
+      width: 1.25em;
+      height: 1.25em;
+      display: inline-block;
+      vertical-align: -0.2em;
+      color: currentColor;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    .icon-box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-primary-700);
+      background: var(--color-primary-100);
+      border-radius: var(--radius-md);
+    }
+
+    .icon-box .ui-icon {
+      width: 1.35em;
+      height: 1.35em;
+    }
+
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(var(--layout-card-min), 1fr));
+      gap: var(--space-md);
+    }
+
+    .icon-card {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      background: var(--bg-surface);
+      border: var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .icon-card-preview {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-primary-100);
+      color: var(--color-primary-700);
+      flex-shrink: 0;
+    }
+
+    .icon-card-meta {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      min-width: 0;
+    }
+
+    .icon-card-id {
+      color: var(--text-secondary);
+      font-size: var(--font-caption);
+      word-break: break-all;
+    }
+
+    .preview-shell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-lg);
+      padding-top: var(--space-sm);
+      padding-bottom: var(--space-2xl);
+    }
+
+    .page-switcher {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--space-sm);
+    }
+
+    .page-button {
+      border: var(--border-subtle);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      border-radius: var(--radius-full);
+      padding: var(--space-xs) var(--space-md);
+      cursor: pointer;
+    }
+
+    .page-button[aria-selected="true"] {
+      background: var(--color-primary-500);
+      color: var(--text-inverse);
+      border-color: transparent;
+    }
+
+    .page-preview {
+      display: none;
+    }
+
+    .page-preview.is-active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="design-doc">
+    <header class="doc-header">
+      <div class="doc-title-row">
+        <h1 class="doc-title">{{PRODUCT_NAME}}</h1>
+      </div>
+      <div class="doc-meta">
+        <span>{{PLATFORM}}</span>
+        <span>{{STYLE_SUMMARY}}</span>
+        <span>{{GENERATED_AT}}</span>
+      </div>
+      <nav class="doc-tabs" aria-label="UI design sections">
+        <button class="doc-tab-button" data-tab="design-system" aria-selected="false">Design System</button>
+        <button class="doc-tab-button" data-tab="icon-library" aria-selected="false">Icon Library</button>
+        <button class="doc-tab-button" data-tab="components" aria-selected="false">Components</button>
+        <button class="doc-tab-button" data-tab="preview" aria-selected="true">Preview</button>
+      </nav>
+    </header>
+
+    <main class="doc-main">
+      <section id="design-system" class="doc-panel">
+        <div class="section-stack">
+          {{DESIGN_SYSTEM_CONTENT}}
+        </div>
+      </section>
+
+      <section id="icon-library" class="doc-panel">
+        <div class="section-stack">
+          {{ICON_LIBRARY_CONTENT}}
+        </div>
+      </section>
+
+      <section id="components" class="doc-panel">
+        <div class="section-stack">
+          {{COMPONENTS_CONTENT}}
+        </div>
+      </section>
+
+      <section id="preview" class="doc-panel is-active">
+        <div class="preview-shell">
+          {{PREVIEW_CONTENT}}
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const tabButtons = Array.from(document.querySelectorAll('.doc-tab-button'));
+    const panels = Array.from(document.querySelectorAll('.doc-panel'));
+    const pageButtons = Array.from(document.querySelectorAll('.page-button[data-page]'));
+    const pagePreviews = Array.from(document.querySelectorAll('.page-preview[id]'));
+
+    tabButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const target = button.dataset.tab;
+        tabButtons.forEach((item) => item.setAttribute('aria-selected', String(item === button)));
+        panels.forEach((panel) => panel.classList.toggle('is-active', panel.id === target));
+      });
+    });
+
+    pageButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const target = button.dataset.page;
+        if (!target) return;
+
+        pageButtons.forEach((item) => item.setAttribute('aria-selected', String(item === button)));
+        pagePreviews.forEach((preview) => preview.classList.toggle('is-active', preview.id === target));
+      });
+    });
+  </script>
+</body>
+</html>
