@@ -1,19 +1,21 @@
 # Revision Rules — 修改模式规范
 
-修改模式的核心约束：**从变更点追溯影响链，只动影响链上的文件，不在影响链以外新增任何资产。**
+修改模式的核心约束：**从变更点追溯影响链，只动影响链上的文件；新增资产必须规范化并同步到资产库。**
 
 ---
 
-## 一、零新增原则
+## 一、新增资产规范
 
-除非用户明确要求，修改时**禁止**：
+修改时如需新增资产，**必须走原始规范，禁止就地临时创建**：
 
-- 新增 `src/components/ui/` 组件
-- 新增 `src/components/icons/` 图标
-- 新增 CSS Token / CSS 变量
-- 新增页面路由
+| 新增类型 | 必须遵守的规范 | 必须同步 |
+|----------|---------------|----------|
+| 新增组件 | [component-catalog.md](./component-catalog.md)：独立 TSX、props 变体、使用现有 Token 和图标 | `src/viewer/ComponentsTab.tsx` 加入展示 |
+| 新增图标 | [icon-library.md](./icon-library.md)：纯 SVG、kebab-case、currentColor、无 width/height | `src/viewer/IconsTab.tsx` 加入展示 |
+| 新增 Token | [design-principles.md](./design-principles.md)：来自色彩学关系，非机械色阶 | `src/index.css`、`tailwind.config.ts`、`src/viewer/DesignSystemTab.tsx` 同步更新 |
+| 新增页面 | [blueprint-schema.md](./blueprint-schema.md) + [final-output-spec.md](./final-output-spec.md)：先写蓝图再写页面 | `src/App.tsx` 路由表加入新路由 |
 
-所有修改必须在现有资产范围内完成。遇到"现有组件不够用"时，**优先组合现有组件**，而不是造新的。
+**不允许**在页面或组件内部临时写一次性样式块、内联 SVG、局部匿名组件来代替正式资产。如果现有资产不够，就按规范新增，而不是绕开资产体系。
 
 ---
 
@@ -30,20 +32,7 @@
 
 ---
 
-## 三、允许新增的场景与约束
-
-用户明确要求新增时，**必须遵守对应原始规范**，不得走捷径：
-
-| 新增类型 | 必须遵守的规范 | 同步更新 |
-|----------|---------------|----------|
-| 新增组件 | [component-catalog.md](./component-catalog.md)：独立 TSX、props 变体、使用现有 Token 和图标 | `src/viewer/ComponentsTab.tsx` 加入展示 |
-| 新增图标 | [icon-library.md](./icon-library.md)：纯 SVG、kebab-case、currentColor、无 width/height | `src/viewer/IconsTab.tsx` 加入展示 |
-| 新增 Token | [design-principles.md](./design-principles.md)：来自色彩学关系，非机械色阶 | `src/index.css`、`tailwind.config.ts`、`src/viewer/DesignSystemTab.tsx` 同步更新 |
-| 新增页面 | [blueprint-schema.md](./blueprint-schema.md) + [final-output-spec.md](./final-output-spec.md)：先写蓝图再写页面 | `src/App.tsx` 路由表加入新路由 |
-
----
-
-## 四、禁止行为
+## 三、禁止行为
 
 修改时无论什么情况都不得出现以下内容：
 
@@ -55,7 +44,7 @@
 
 ---
 
-## 五、完成后说明
+## 四、完成后说明
 
 修改完成后，必须告知用户：
 
