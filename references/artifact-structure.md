@@ -1,6 +1,10 @@
 # Artifact Structure — 设计资产目录结构规范
 
-最终交付物是一个可直接运行的 React + Tailwind CSS + React Router 项目，执行 `npm install && npm run dev` 即可在浏览器中预览所有页面并完成页面跳转和弹窗交互。
+最终交付物是一个可直接运行的 React + Tailwind CSS + React Router 项目，执行 `npm install && npm run dev` 即可在浏览器中预览。
+
+浏览器打开后呈现**两个顶层入口**，通过 `App.tsx` 的顶栏切换：
+- **资源**：展示 Design System tokens、图标、组件，内含 3 个子 tab
+- **设计图**：完整的设计页面，通过 React Router 跳转，页面本体无任何外层装饰
 
 ---
 
@@ -15,7 +19,7 @@
 ├── index.html                    ← Vite 入口 HTML，仅挂载 #root
 └── src/
     ├── main.tsx                  ← ReactDOM.createRoot + BrowserRouter
-    ├── App.tsx                   ← 路由表（Routes / Route）
+    ├── App.tsx                   ← 顶层两入口切换（资源 / 设计图）
     ├── index.css                 ← @tailwind 指令 + CSS 变量（Design Tokens）
     ├── components/
     │   ├── icons/
@@ -24,9 +28,14 @@
     │   └── ui/
     │       ├── Button.tsx
     │       └── ...               ← 每个 UI 组件一个 TSX 文件
-    └── pages/
-        ├── HomePage.tsx
-        └── ...                   ← 每个页面一个 TSX 文件
+    ├── pages/
+    │   ├── HomePage.tsx
+    │   └── ...                   ← 每个设计页面一个 TSX 文件
+    └── viewer/
+        ├── AssetsViewer.tsx      ← 资源入口：3 个子 tab 的容器
+        ├── DesignSystemTab.tsx   ← 展示所有 Design Token（色彩、字体、间距、圆角）
+        ├── IconsTab.tsx          ← 展示所有图标组件
+        └── ComponentsTab.tsx     ← 展示所有 UI 组件及变体
 ```
 
 ---
@@ -41,11 +50,15 @@
 | `tsconfig.json` | TypeScript 配置，target ES2020，moduleResolution bundler |
 | `index.html` | Vite 入口，只含 `<div id="root">` 和 `<script type="module" src="/src/main.tsx">` |
 | `src/main.tsx` | `createRoot(document.getElementById('root')).render(<BrowserRouter><App/></BrowserRouter>)` |
-| `src/App.tsx` | `<Routes>` 路由表，每个页面一条 `<Route>` |
+| `src/App.tsx` | 顶层两入口切换：`activeEntry === 'assets'` 渲染 `<AssetsViewer>`，否则渲染 `<Routes>`（设计页面路由） |
 | `src/index.css` | `@tailwind base/components/utilities`，`:root { }` 中定义所有 Design Token CSS 变量 |
 | `src/components/icons/*.tsx` | 每个图标一个 React 组件，接受 `size` 和 `className` props，内联 SVG 路径 |
 | `src/components/ui/*.tsx` | UI 组件，使用 Tailwind 类名，通过 props 控制变体 |
-| `src/pages/*.tsx` | 页面组件，使用 `<Link>` 或 `useNavigate` 做页面跳转，用 `useState` 控制弹窗 |
+| `src/pages/*.tsx` | 设计页面组件，使用 `<Link>` 或 `useNavigate` 做页面跳转，用 `useState` 控制弹窗；**不感知任何外层结构** |
+| `src/viewer/AssetsViewer.tsx` | 资源入口容器，内含 Design System / Icons / Components 三个子 tab |
+| `src/viewer/DesignSystemTab.tsx` | 展示所有 CSS Token 变量（色彩色板、字体阶梯、间距、圆角、阴影、渐变） |
+| `src/viewer/IconsTab.tsx` | 展示所有 `src/components/icons/` 图标，显示名称和预览 |
+| `src/viewer/ComponentsTab.tsx` | 展示所有 `src/components/ui/` 组件及其主要变体 |
 
 ---
 
@@ -180,19 +193,46 @@ createRoot(document.getElementById('root')!).render(
 )
 ```
 
-### src/App.tsx（路由配置）
+### src/App.tsx（顶层两入口切换）
 ```tsx
+import { useState } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
+import AssetsViewer from './viewer/AssetsViewer'
 import HomePage from './pages/HomePage'
 // import 其他页面...
 
 export default function App() {
+  const [entry, setEntry] = useState<'assets' | 'design'>('design')
+
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/home" replace />} />
-      <Route path="/home" element={<HomePage />} />
-      {/* 其他路由... */}
-    </Routes>
+    <div className="min-h-screen bg-white">
+      {/* 顶部两入口切换栏 */}
+      <div className="flex border-b border-gray-200">
+        <button
+          onClick={() => setEntry('design')}
+          className={entry === 'design' ? 'px-6 py-3 border-b-2 border-primary font-medium' : 'px-6 py-3 text-gray-500'}
+        >
+          设计图
+        </button>
+        <button
+          onClick={() => setEntry('assets')}
+          className={entry === 'assets' ? 'px-6 py-3 border-b-2 border-primary font-medium' : 'px-6 py-3 text-gray-500'}
+        >
+          资源
+        </button>
+      </div>
+
+      {/* 入口内容区 */}
+      {entry === 'assets' ? (
+        <AssetsViewer />
+      ) : (
+        <Routes>
+          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="/home" element={<HomePage />} />
+          {/* 其他设计页面路由... */}
+        </Routes>
+      )}
+    </div>
   )
 }
 ```

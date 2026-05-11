@@ -4,38 +4,119 @@
 
 ---
 
-## 一、路由配置（App.tsx）
+## 一、顶层结构：两入口设计
 
-`src/App.tsx` 是路由入口，必须包含所有页面的路由定义。
+`src/App.tsx` 渲染顶部切换栏，分为两个入口：
 
-### 基本结构
+- **设计图**：嵌套的 `<Routes>`，包含所有设计页面，页面本身完全干净，无任何外层装饰
+- **资源**：`<AssetsViewer>` 组件，内含 Design System / Icons / Components 三个子 tab
+
+页面组件（`src/pages/*.tsx`）不感知外层入口切换，**不得引入或依赖 `App.tsx` 中的入口 tab**。
+
+---
+
+## 二、路由配置（App.tsx）
+
 ```tsx
+import { useState } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
+import AssetsViewer from './viewer/AssetsViewer'
 import HomePage from './pages/HomePage'
-import DevicesPage from './pages/DevicesPage'
 // import 其他页面...
 
 export default function App() {
+  const [entry, setEntry] = useState<'design' | 'assets'>('design')
+
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/home" replace />} />
-      <Route path="/home" element={<HomePage />} />
-      <Route path="/devices" element={<DevicesPage />} />
-      {/* 其他路由... */}
-    </Routes>
+    <div className="min-h-screen bg-white">
+      <div className="flex border-b border-gray-200">
+        <button
+          onClick={() => setEntry('design')}
+          className={entry === 'design' ? 'px-6 py-3 border-b-2 border-primary font-medium' : 'px-6 py-3 text-gray-500'}
+        >
+          设计图
+        </button>
+        <button
+          onClick={() => setEntry('assets')}
+          className={entry === 'assets' ? 'px-6 py-3 border-b-2 border-primary font-medium' : 'px-6 py-3 text-gray-500'}
+        >
+          资源
+        </button>
+      </div>
+
+      {entry === 'assets' ? (
+        <AssetsViewer />
+      ) : (
+        <Routes>
+          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="/home" element={<HomePage />} />
+          {/* 其他路由... */}
+        </Routes>
+      )}
+    </div>
   )
 }
 ```
 
 ### 路由规范
-- 根路径 `/` 必须重定向到第一个主要页面
+- 根路径 `/` 必须重定向到第一个主要设计页面
 - 路由路径使用 kebab-case（如 `/report-detail`）
 - 每个页面组件一条 `<Route>`，不使用动态路由（除非需求明确要求）
-- 不使用 hash 路由（`#`）
 
 ---
 
-## 二、页面跳转
+## 三、AssetsViewer 结构
+
+`src/viewer/AssetsViewer.tsx` 是资源入口，内含三个子 tab：
+
+```tsx
+import { useState } from 'react'
+import DesignSystemTab from './DesignSystemTab'
+import IconsTab from './IconsTab'
+import ComponentsTab from './ComponentsTab'
+
+type Tab = 'ds' | 'icons' | 'components'
+
+export default function AssetsViewer() {
+  const [tab, setTab] = useState<Tab>('ds')
+  const tabs: { id: Tab; label: string }[] = [
+    { id: 'ds', label: 'Design System' },
+    { id: 'icons', label: 'Icons' },
+    { id: 'components', label: 'Components' },
+  ]
+
+  return (
+    <div className="p-6">
+      <div className="flex gap-4 border-b border-gray-200 mb-6">
+        {tabs.map(t => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={tab === t.id ? 'pb-2 border-b-2 border-primary font-medium' : 'pb-2 text-gray-500'}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+      {tab === 'ds' && <DesignSystemTab />}
+      {tab === 'icons' && <IconsTab />}
+      {tab === 'components' && <ComponentsTab />}
+    </div>
+  )
+}
+```
+
+### 各子 tab 内容
+
+| Tab | 展示内容 |
+|-----|----------|
+| Design System | 所有 CSS Token：色彩色板（含名称和 hex）、字体阶梯、间距比例、圆角、阴影、渐变 |
+| Icons | 所有 `src/components/icons/` 图标网格：图标预览 + 组件名称 |
+| Components | 所有 `src/components/ui/` 组件及其主要变体展示 |
+
+---
+
+## 四、页面跳转
 
 ### 导航栏 / TabBar 跳转
 ```tsx
@@ -70,7 +151,7 @@ const navigate = useNavigate()
 
 ---
 
-## 三、弹窗 / 底部抽屉 / Dialog
+## 五、弹窗 / 底部抽屉 / Dialog
 
 弹窗必须是独立组件，放在 `src/components/ui/` 中（如 `Modal.tsx`、`Sheet.tsx`、`Dialog.tsx`）。
 
@@ -122,32 +203,16 @@ export function Modal({ title, onClose, onConfirm, children }: ModalProps) {
 
 ---
 
-## 四、移动端容器
+## 六、输出原则
 
-移动端设计使用固定手机容器展示：
-
-```tsx
-// src/main.tsx 或 App.tsx 外层
-<div className="min-h-screen bg-gray-100 flex items-center justify-center">
-  <div className="w-[390px] h-[844px] bg-surface overflow-hidden relative shadow-2xl rounded-[40px]">
-    {/* 页面内容 */}
-  </div>
-</div>
-```
-
-- 移动端容器固定宽度 390px（iPhone 14 标准），高度 844px
-- Web 平台不使用手机容器，页面内容区居中展示
-
----
-
-## 五、输出原则
-
-1. `App.tsx` 必须注册所有页面路由，用户打开项目即可通过导航浏览所有页面。
-2. 页面跳转必须使用 React Router 的 `<Link>`、`<NavLink>` 或 `useNavigate`，不使用 `window.location`。
-3. 弹窗必须是独立组件，不在页面文件中内联弹窗结构。
-4. 所有颜色、圆角、阴影值必须来自 `tailwind.config.ts` 中扩展的 Token，不使用魔法数字。
-5. 第一个页面必须是产品核心界面（如首页），而不是"欢迎"或"加载"页。
-6. 不使用外部 CDN，所有依赖通过 npm 安装。
+1. `App.tsx` 顶层切换栏只有两个入口：**设计图**和**资源**，两者严格隔离。
+2. 设计页面（`src/pages/`）完全干净，不含任何外层 tab 引用或 viewer 引用。
+3. 资源 viewer（`src/viewer/`）不参与设计页面路由，不影响设计稿视觉。
+4. 页面跳转必须使用 React Router 的 `<Link>`、`<NavLink>` 或 `useNavigate`，不使用 `window.location`。
+5. 弹窗必须是独立组件，不在页面文件中内联弹窗结构。
+6. 所有颜色、圆角、阴影值必须来自 `tailwind.config.ts` 中扩展的 Token，不使用魔法数字。
+7. 第一个路由页面必须是产品核心界面（如首页），而不是"欢迎"或"加载"页。
+8. 不使用外部 CDN，所有依赖通过 npm 安装。
 - 禁止出现未替换的模板占位符，例如 `{{PRODUCT_NAME}}`。
 - 禁止使用字母、数字、emoji 或几何色块代替图标。
 - 禁止在根页面内联图标定义、组件定义或页面本体来绕过资产目录。
