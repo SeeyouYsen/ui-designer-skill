@@ -23,8 +23,8 @@
     ├── index.css                 ← @tailwind 指令 + CSS 变量（Design Tokens）
     ├── components/
     │   ├── icons/
-    │   │   ├── IconHome.tsx
-    │   │   └── ...               ← 每个图标一个 TSX 文件
+    │   │   ├── home.svg
+    │   │   └── ...               ← 每个图标一个纯 SVG 文件
     │   └── ui/
     │       ├── Button.tsx
     │       └── ...               ← 每个 UI 组件一个 TSX 文件
@@ -52,7 +52,7 @@
 | `src/main.tsx` | `createRoot(document.getElementById('root')).render(<BrowserRouter><App/></BrowserRouter>)` |
 | `src/App.tsx` | 顶层两入口切换：`activeEntry === 'assets'` 渲染 `<AssetsViewer>`，否则渲染 `<Routes>`（设计页面路由） |
 | `src/index.css` | `@tailwind base/components/utilities`，`:root { }` 中定义所有 Design Token CSS 变量 |
-| `src/components/icons/*.tsx` | 每个图标一个 React 组件，接受 `size` 和 `className` props，内联 SVG 路径 |
+| `src/components/icons/*.svg` | 每个图标一个纯 SVG 文件，通过 `vite-plugin-svgr` 作为 React 组件导入 |
 | `src/components/ui/*.tsx` | UI 组件，使用 Tailwind 类名，通过 props 控制变体 |
 | `src/pages/*.tsx` | 设计页面组件，使用 `<Link>` 或 `useNavigate` 做页面跳转，用 `useState` 控制弹窗；**不感知任何外层结构** |
 | `src/viewer/AssetsViewer.tsx` | 资源入口容器，内含 Design System / Icons / Components 三个子 tab |
@@ -64,11 +64,11 @@
 
 ## 三、命名规范
 
-### 图标组件
+### 图标文件
 
-- 格式：`Icon{Name}.tsx`，使用 PascalCase
-- 示例：`IconHome.tsx`、`IconHeartRate.tsx`、`IconBloodPressure.tsx`
-- 组件名：`export function IconHome({ size = 24, className = '' }: IconProps)`
+- 格式：kebab-case `.svg` 文件
+- 示例：`home.svg`、`heart-rate.svg`、`blood-pressure.svg`
+- 引用时加 `?react` 后缀：`import HomeIcon from '../components/icons/home.svg?react'`
 
 ### UI 组件
 
@@ -115,7 +115,8 @@
     "tailwindcss": "^4.0.0",
     "typescript": "^5.0.0",
     "vite": "^6.0.0",
-    "@vitejs/plugin-react": "^4.0.0"
+    "@vitejs/plugin-react": "^4.0.0",
+    "vite-plugin-svgr": "^4.0.0"
   }
 }
 ```
@@ -125,9 +126,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import svgr from 'vite-plugin-svgr'
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), svgr()],
 })
 ```
 
