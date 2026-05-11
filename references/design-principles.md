@@ -283,12 +283,11 @@ spacing scale 必须有一致递进关系，但层级数量按设计复杂度决
 
 ---
 
-## 六、HTML 输出约束
+## 六、输出约束
 
 - 所有颜色、字号、间距、圆角、阴影必须引用 CSS Variables，**禁止 magic number**
 - 禁止用 `position: absolute` 构建页面主体布局（stack 组件除外）
-- 禁止内联 `style` 属性，全部使用 class
-- 移动端模拟器容器固定宽度 **390px**（iPhone 14 标准）
+- 禁止内联 `style` 属性，全部使用 Tailwind 类名
 - 暗色模式：默认不实现，除非用户明确要求
 
 ---

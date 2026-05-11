@@ -17,46 +17,7 @@
 
 ## 二、路由配置（App.tsx）
 
-```tsx
-import { useState } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
-import AssetsViewer from './viewer/AssetsViewer'
-import HomePage from './pages/HomePage'
-// import 其他页面...
-
-export default function App() {
-  const [entry, setEntry] = useState<'design' | 'assets'>('design')
-
-  return (
-    <div className="min-h-screen bg-white">
-      <div className="flex border-b border-gray-200">
-        <button
-          onClick={() => setEntry('design')}
-          className={entry === 'design' ? 'px-6 py-3 border-b-2 border-primary font-medium' : 'px-6 py-3 text-gray-500'}
-        >
-          设计图
-        </button>
-        <button
-          onClick={() => setEntry('assets')}
-          className={entry === 'assets' ? 'px-6 py-3 border-b-2 border-primary font-medium' : 'px-6 py-3 text-gray-500'}
-        >
-          资源
-        </button>
-      </div>
-
-      {entry === 'assets' ? (
-        <AssetsViewer />
-      ) : (
-        <Routes>
-          <Route path="/" element={<Navigate to="/home" replace />} />
-          <Route path="/home" element={<HomePage />} />
-          {/* 其他路由... */}
-        </Routes>
-      )}
-    </div>
-  )
-}
-```
+`App.tsx` 完整模板见 [artifact-structure.md §四](./artifact-structure.md)，本节只列行为约束：
 
 ### 路由规范
 - 根路径 `/` 必须重定向到第一个主要设计页面

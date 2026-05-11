@@ -51,7 +51,7 @@
 | `index.html` | Vite 入口，只含 `<div id="root">` 和 `<script type="module" src="/src/main.tsx">` |
 | `src/main.tsx` | `createRoot(document.getElementById('root')).render(<BrowserRouter><App/></BrowserRouter>)` |
 | `src/App.tsx` | 顶层两入口切换：`activeEntry === 'assets'` 渲染 `<AssetsViewer>`，否则渲染 `<Routes>`（设计页面路由） |
-| `src/index.css` | `@tailwind base/components/utilities`，`:root { }` 中定义所有 Design Token CSS 变量 |
+| `src/index.css` | `@import "tailwindcss"` + `:root { }` 中定义所有 Design Token CSS 变量 |
 | `src/components/icons/*.svg` | 每个图标一个纯 SVG 文件，通过 `vite-plugin-svgr` 作为 React 组件导入 |
 | `src/components/ui/*.tsx` | UI 组件，使用 Tailwind 类名，通过 props 控制变体 |
 | `src/pages/*.tsx` | 设计页面组件，使用 `<Link>` 或 `useNavigate` 做页面跳转，用 `useState` 控制弹窗；**不感知任何外层结构** |
@@ -133,20 +133,30 @@ export default defineConfig({
 })
 ```
 
-### tailwind.config.ts
-```ts
-import type { Config } from 'tailwindcss'
+### tailwind.config.ts（Tailwind v4 语法）
 
+Tailwind v4 中 `content` 自动推断，token 映射通过 `theme.extend` + CSS 变量引用。**根据当前设计的实际 token 动态扩展，以下为典型结构，按需增减**：
+
+```ts
 export default {
-  content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
+        // 品牌色
         primary: 'var(--color-primary)',
         'primary-light': 'var(--color-primary-light)',
+        // 语义色
+        success: 'var(--color-success)',
+        warning: 'var(--color-warning)',
+        error: 'var(--color-error)',
+        // 背景
         surface: 'var(--color-surface)',
+        'bg-page': 'var(--color-bg-page)',
+        'bg-elevated': 'var(--color-bg-elevated)',
+        // 文字
         'text-primary': 'var(--color-text-primary)',
         'text-secondary': 'var(--color-text-secondary)',
+        'text-tertiary': 'var(--color-text-tertiary)',
       },
       borderRadius: {
         sm: 'var(--radius-sm)',
@@ -156,14 +166,12 @@ export default {
       },
     },
   },
-} satisfies Config
+}
 ```
 
 ### src/index.css（Design Tokens 写在这里）
 ```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
   --color-primary: #...;
@@ -270,7 +278,7 @@ const [open, setOpen] = useState(false)
 ## 六、输出原则
 
 1. 每个页面是一个独立 TSX 文件，在 `App.tsx` 的路由表中注册。
-2. 每个图标是一个独立 TSX 组件，从 `src/components/icons/` 导入使用。
+2. 每个图标是一个独立 SVG 文件，通过 `import X from '*.svg?react'` 导入为 React 组件使用。
 3. UI 组件放在 `src/components/ui/`，通过 props 控制变体，不在页面中临时写样式。
 4. 所有颜色、字号、间距、圆角值必须来自 CSS Token 变量，通过 Tailwind 类名使用，禁止魔法数字。
 5. 弹窗必须是独立组件，状态由父页面的 `useState` 控制。
