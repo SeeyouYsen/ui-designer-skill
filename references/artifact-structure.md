@@ -20,7 +20,7 @@
 └── src/
     ├── main.tsx                  ← ReactDOM.createRoot + BrowserRouter
     ├── App.tsx                   ← 顶层两入口切换（资源 / 设计图）
-    ├── index.css                 ← @tailwind 指令 + CSS 变量（Design Tokens）
+    ├── index.css                 ← `@import "tailwindcss"` + CSS 变量（Design Tokens）
     ├── components/
     │   ├── icons/
     │   │   ├── home.svg
@@ -45,8 +45,8 @@
 | 路径 | 职责 |
 |------|------|
 | `package.json` | 项目依赖：react、react-dom、react-router-dom、tailwindcss、@tailwindcss/vite、typescript、vite |
-| `vite.config.ts` | Vite 配置，使用 `@vitejs/plugin-react` 和 `@tailwindcss/vite` |
-| `tailwind.config.ts` | Tailwind 配置，`content` 指向 `./src/**/*.{tsx,ts}`，`theme.extend` 中用 `var()` 引用 Design Token CSS 变量 |
+| `vite.config.ts` | Vite 配置，使用 `@vitejs/plugin-react`、`@tailwindcss/vite` 和 `vite-plugin-svgr`（SVG → React 组件） |
+| `tailwind.config.ts` | Tailwind v4 配置，无 `content` 数组（路径自动推断），`theme.extend` 中用 `var()` 引用 Design Token CSS 变量 |
 | `tsconfig.json` | TypeScript 配置，target ES2020，moduleResolution bundler |
 | `index.html` | Vite 入口，只含 `<div id="root">` 和 `<script type="module" src="/src/main.tsx">` |
 | `src/main.tsx` | `createRoot(document.getElementById('root')).render(<BrowserRouter><App/></BrowserRouter>)` |

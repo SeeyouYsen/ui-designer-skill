@@ -13,9 +13,12 @@
 | 新增组件 | [component-catalog.md](./component-catalog.md)：独立 TSX、props 变体、使用现有 Token 和图标 | `src/viewer/ComponentsTab.tsx` 加入展示 |
 | 新增图标 | [icon-library.md](./icon-library.md)：纯 SVG、kebab-case、currentColor、无 width/height | `src/viewer/IconsTab.tsx` 加入展示 |
 | 新增 Token | [design-principles.md](./design-principles.md)：来自色彩学关系，非机械色阶 | `src/index.css`、`tailwind.config.ts`、`src/viewer/DesignSystemTab.tsx` 同步更新 |
+| 修改已有 Token 值 | [design-principles.md](./design-principles.md)：保持色彩学关系，不能孤立调整单个值 | `src/index.css`、`tailwind.config.ts`（若变量名变更）、`src/viewer/DesignSystemTab.tsx` 同步更新 |
 | 新增页面 | [blueprint-schema.md](./blueprint-schema.md) + [final-output-spec.md](./final-output-spec.md)：先写蓝图再写页面 | `src/App.tsx` 路由表加入新路由 |
 
 **不允许**在页面或组件内部临时写一次性样式块、内联 SVG、局部匿名组件来代替正式资产。如果现有资产不够，就按规范新增，而不是绕开资产体系。
+
+**输出节奏**：新增资产时同样遵守 SKILL.md 的文件数量上限：图标每条消息最多 5 个，UI 组件最多 2 个，页面每条消息 1 个；超过时分批输出。
 
 ---
 

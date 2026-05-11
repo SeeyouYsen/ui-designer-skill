@@ -89,7 +89,7 @@ import { NavLink } from 'react-router-dom'
     isActive ? 'text-primary' : 'text-text-secondary'
   }
 >
-  <IconHome size={24} />
+  <IconHome className="w-5 h-5" />
   <span>首页</span>
 </NavLink>
 ```
